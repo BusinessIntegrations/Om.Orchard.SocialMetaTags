@@ -1,5 +1,7 @@
-﻿using Om.Orchard.SocialMetaTags.Models;
+﻿#region Using
+using Om.Orchard.SocialMetaTags.Models;
 using Orchard.ContentManagement.Handlers;
+#endregion
 
 namespace Om.Orchard.SocialMetaTags.Handlers {
     public class SummaryCardsMetaTagsSettingsPartHandler : ContentHandler {

@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
+﻿#region Using
+using System.Collections.Generic;
 using Orchard.Environment.Extensions.Models;
 using Orchard.Security.Permissions;
+#endregion
 
 namespace Om.Orchard.SocialMetaTags {
     public class Permissions : IPermissionProvider {
-        public static readonly Permission ManageSocialMetaTagsSettings = new Permission { Description = "Managing Social Meta Tags Settings", Name = "ManageSocialMetaTagsSettings" };
+        public static readonly Permission ManageSocialMetaTagsSettings = new Permission {
+            Description = "Managing Social Meta Tags Settings",
+            Name = "ManageSocialMetaTagsSettings"
+        };
 
-        public virtual Feature Feature { get; set; }
-
-        public IEnumerable<Permission> GetPermissions() {
-            return new[] {
-                ManageSocialMetaTagsSettings,
-            };
-        }
-
+        #region IPermissionProvider Members
         public IEnumerable<PermissionStereotype> GetDefaultStereotypes() {
             return new[] {
                 new PermissionStereotype {
@@ -25,16 +23,22 @@ namespace Om.Orchard.SocialMetaTags {
                     Permissions = new[] {ManageSocialMetaTagsSettings}
                 },
                 new PermissionStereotype {
-                    Name = "Moderator",
+                    Name = "Moderator"
                 },
                 new PermissionStereotype {
-                    Name = "Author",
+                    Name = "Author"
                 },
                 new PermissionStereotype {
-                    Name = "Contributor",
-                },
+                    Name = "Contributor"
+                }
             };
         }
 
+        public IEnumerable<Permission> GetPermissions() {
+            return new[] {ManageSocialMetaTagsSettings};
+        }
+
+        public virtual Feature Feature { get; set; }
+        #endregion
     }
 }

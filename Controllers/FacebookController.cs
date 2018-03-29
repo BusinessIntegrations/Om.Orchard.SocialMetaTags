@@ -1,4 +1,4 @@
-﻿using System;
+﻿#region Using
 using System.Web.Mvc;
 using Om.Orchard.SocialMetaTags.Models;
 using Om.Orchard.SocialMetaTags.ViewModels;
@@ -9,119 +9,133 @@ using Orchard.Localization;
 using Orchard.Themes;
 using Orchard.UI.Admin;
 using Orchard.UI.Notify;
+#endregion
 
 namespace Om.Orchard.SocialMetaTags.Controllers {
     [OrchardFeature("Om.Orchard.SocialMetaTags")]
-    [Themed, Admin]
+    [Themed]
+    [Admin]
     public class FacebookController : Controller {
+        private readonly IOrchardServices _orchardServices;
 
-        public IOrchardServices Services { get; set; }
-        public Localizer T { get; set; }
-
-        public FacebookController(IOrchardServices _services) {
-            Services = _services;
+        public FacebookController(IOrchardServices orchardServices) {
+            _orchardServices = orchardServices;
             T = NullLocalizer.Instance;
         }
 
+        #region Properties
+        public Localizer T { get; set; }
+        #endregion
+
+        #region Methods
         // GET: /Facebook/
         public ActionResult Index() {
-            if (!Services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tag Settings")))
+            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tag Settings"))) {
                 return new HttpUnauthorizedResult();
-
-            var fbIndexViewModel = GetViewModel(Services.WorkContext.CurrentSite.As<OpenGraphMetaTagsSettingsPart>());
-            fbIndexViewModel.CurrentCulture = Services.WorkContext.CurrentSite.SiteCulture;
-            fbIndexViewModel.CurrentSiteName = Services.WorkContext.CurrentSite.SiteName;
-
+            }
+            var fbIndexViewModel = GetViewModel(_orchardServices.WorkContext.CurrentSite.As<OpenGraphMetaTagsSettingsPart>());
+            fbIndexViewModel.CurrentCulture = _orchardServices.WorkContext.CurrentSite.SiteCulture;
+            fbIndexViewModel.CurrentSiteName = _orchardServices.WorkContext.CurrentSite.SiteName;
             return View(fbIndexViewModel);
         }
 
-        [HttpPost, ActionName("Index")]
+        [HttpPost]
+        [ActionName("Index")]
         public ActionResult IndexPost(FacebookIndexViewModel model) {
-
-            if (!Services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings")))
+            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
                 return new HttpUnauthorizedResult();
-
-            if (model.OgLocaleTagEnabled && model.OgLocaleTagRequired && !model.OgLocaleTagAllowOverwrite && String.IsNullOrWhiteSpace(model.OgLocaleTagValue))
-                ModelState.AddModelError("_FORM", T("Locale value is required as per your selection.").Text);
-
-            if (model.OgSiteNameTagEnabled && model.OgSiteNameTagRequired && !model.OgSiteNameTagAllowOverwrite && String.IsNullOrWhiteSpace(model.OgSiteNameTagValue))
-                ModelState.AddModelError("_FORM", T("Site Name value is required as per your selection.").Text);
-
-            if (model.FbAdminTagEnabled && model.FbAdminTagRequired && !model.FbAdminTagAllowOverwrite && String.IsNullOrWhiteSpace(model.FbAdminTagValue))
-                ModelState.AddModelError("_FORM", T("fb admins value is required as per your selection.").Text);
-
+            }
+            if (model.OgLocaleTagEnabled &&
+                model.OgLocaleTagRequired &&
+                !model.OgLocaleTagAllowOverwrite &&
+                string.IsNullOrWhiteSpace(model.OgLocaleTagValue)) {
+                ModelState.AddModelError("_FORM",
+                    T("Locale value is required as per your selection.")
+                        .Text);
+            }
+            if (model.OgSiteNameTagEnabled &&
+                model.OgSiteNameTagRequired &&
+                !model.OgSiteNameTagAllowOverwrite &&
+                string.IsNullOrWhiteSpace(model.OgSiteNameTagValue)) {
+                ModelState.AddModelError("_FORM",
+                    T("Site Name value is required as per your selection.")
+                        .Text);
+            }
+            if (model.FbAdminTagEnabled &&
+                model.FbAdminTagRequired &&
+                !model.FbAdminTagAllowOverwrite &&
+                string.IsNullOrWhiteSpace(model.FbAdminTagValue)) {
+                ModelState.AddModelError("_FORM",
+                    T("fb admins value is required as per your selection.")
+                        .Text);
+            }
             if (ModelState.IsValid) {
                 if (TryUpdateModel(model)) {
                     SetOgSettingsPart(model);
-                    Services.Notifier.Information(T("Open Graph Meta Tags settings saved successfully."));
+                    _orchardServices.Notifier.Information(T("Open Graph Meta Tags settings saved successfully."));
                 }
                 else {
-                    Services.Notifier.Information(T("Could not save Open Graph Meta Tags settings."));
+                    _orchardServices.Notifier.Information(T("Could not save Open Graph Meta Tags settings."));
                 }
             }
             else {
-                Services.Notifier.Error(T("Validation error"));
+                _orchardServices.Notifier.Error(T("Validation error"));
                 return View(model);
             }
-
             return RedirectToAction("Index");
         }
 
-        private FacebookIndexViewModel GetViewModel(OpenGraphMetaTagsSettingsPart _ogSettingsPart) {
-            var fbIndexViewModel = new FacebookIndexViewModel();
-            fbIndexViewModel.OgTitleTagEnabled = _ogSettingsPart.OgTitleTagEnabled;
-            fbIndexViewModel.OgTitleTagRequired = _ogSettingsPart.OgTitleTagRequired;
-            fbIndexViewModel.OgTypeTagEnabled = _ogSettingsPart.OgTypeTagEnabled;
-            fbIndexViewModel.OgTypeTagRequired = _ogSettingsPart.OgTypeTagRequired;
-            fbIndexViewModel.OgImageTagEnabled = _ogSettingsPart.OgImageTagEnabled;
-            fbIndexViewModel.OgImageTagRequired = _ogSettingsPart.OgImageTagRequired;
-            fbIndexViewModel.OgUrlTagEnabled = _ogSettingsPart.OgUrlTagEnabled;
-            fbIndexViewModel.OgUrlTagRequired = _ogSettingsPart.OgUrlTagRequired;
-            fbIndexViewModel.OgDescriptionTagEnabled = _ogSettingsPart.OgDescriptionTagEnabled;
-            fbIndexViewModel.OgDescriptionTagRequired = _ogSettingsPart.OgDescriptionTagRequired;
-            fbIndexViewModel.OgLocaleTagEnabled = _ogSettingsPart.OgLocaleTagEnabled;
-            fbIndexViewModel.OgLocaleTagRequired = _ogSettingsPart.OgLocaleTagRequired;
-            fbIndexViewModel.OgLocaleTagValue = _ogSettingsPart.OgLocaleTagValue;
-            fbIndexViewModel.OgLocaleTagAllowOverwrite = _ogSettingsPart.OgLocaleTagAllowOverwrite;
-            fbIndexViewModel.OgSiteNameTagEnabled = _ogSettingsPart.OgSiteNameTagEnabled;
-            fbIndexViewModel.OgSiteNameTagRequired = _ogSettingsPart.OgSiteNameTagRequired;
-            fbIndexViewModel.OgSiteNameTagValue = _ogSettingsPart.OgSiteNameTagValue;
-            fbIndexViewModel.OgSiteNameTagAllowOverwrite = _ogSettingsPart.OgSiteNameTagAllowOverwrite;
-            fbIndexViewModel.FbAdminTagEnabled = _ogSettingsPart.FbAdminTagEnabled;
-            fbIndexViewModel.FbAdminTagRequired = _ogSettingsPart.FbAdminTagRequired;
-            fbIndexViewModel.FbAdminTagValue = _ogSettingsPart.FbAdminTagValue;
-
+        private static FacebookIndexViewModel GetViewModel(OpenGraphMetaTagsSettingsPart ogSettingsPart) {
+            var fbIndexViewModel = new FacebookIndexViewModel {
+                OgTitleTagEnabled = ogSettingsPart.OgTitleTagEnabled,
+                OgTitleTagRequired = ogSettingsPart.OgTitleTagRequired,
+                OgTypeTagEnabled = ogSettingsPart.OgTypeTagEnabled,
+                OgTypeTagRequired = ogSettingsPart.OgTypeTagRequired,
+                OgImageTagEnabled = ogSettingsPart.OgImageTagEnabled,
+                OgImageTagRequired = ogSettingsPart.OgImageTagRequired,
+                OgUrlTagEnabled = ogSettingsPart.OgUrlTagEnabled,
+                OgUrlTagRequired = ogSettingsPart.OgUrlTagRequired,
+                OgDescriptionTagEnabled = ogSettingsPart.OgDescriptionTagEnabled,
+                OgDescriptionTagRequired = ogSettingsPart.OgDescriptionTagRequired,
+                OgLocaleTagEnabled = ogSettingsPart.OgLocaleTagEnabled,
+                OgLocaleTagRequired = ogSettingsPart.OgLocaleTagRequired,
+                OgLocaleTagValue = ogSettingsPart.OgLocaleTagValue,
+                OgLocaleTagAllowOverwrite = ogSettingsPart.OgLocaleTagAllowOverwrite,
+                OgSiteNameTagEnabled = ogSettingsPart.OgSiteNameTagEnabled,
+                OgSiteNameTagRequired = ogSettingsPart.OgSiteNameTagRequired,
+                OgSiteNameTagValue = ogSettingsPart.OgSiteNameTagValue,
+                OgSiteNameTagAllowOverwrite = ogSettingsPart.OgSiteNameTagAllowOverwrite,
+                FbAdminTagEnabled = ogSettingsPart.FbAdminTagEnabled,
+                FbAdminTagRequired = ogSettingsPart.FbAdminTagRequired,
+                FbAdminTagValue = ogSettingsPart.FbAdminTagValue
+            };
             return fbIndexViewModel;
         }
 
-        private void SetOgSettingsPart(FacebookIndexViewModel _fbIndexViewModel) {
-            var ogSettingsPart = Services.WorkContext.CurrentSite.As<OpenGraphMetaTagsSettingsPart>();
-            ogSettingsPart.OgTitleTagEnabled = _fbIndexViewModel.OgTitleTagEnabled;
-            ogSettingsPart.OgTitleTagRequired = _fbIndexViewModel.OgTitleTagRequired;
-            ogSettingsPart.OgTypeTagEnabled = _fbIndexViewModel.OgTypeTagEnabled;
-            ogSettingsPart.OgTypeTagRequired = _fbIndexViewModel.OgTypeTagRequired;
-            ogSettingsPart.OgImageTagEnabled = _fbIndexViewModel.OgImageTagEnabled;
-            ogSettingsPart.OgImageTagRequired = _fbIndexViewModel.OgImageTagRequired;
-            ogSettingsPart.OgUrlTagEnabled = _fbIndexViewModel.OgUrlTagEnabled;
-            ogSettingsPart.OgUrlTagRequired = _fbIndexViewModel.OgUrlTagRequired;
-            ogSettingsPart.OgDescriptionTagEnabled = _fbIndexViewModel.OgDescriptionTagEnabled;
-            ogSettingsPart.OgDescriptionTagRequired = _fbIndexViewModel.OgDescriptionTagRequired;
-            ogSettingsPart.OgLocaleTagEnabled = _fbIndexViewModel.OgLocaleTagEnabled;
-            ogSettingsPart.OgLocaleTagRequired = _fbIndexViewModel.OgLocaleTagRequired;
-            ogSettingsPart.OgLocaleTagValue = _fbIndexViewModel.OgLocaleTagValue;
-            ogSettingsPart.OgLocaleTagAllowOverwrite = _fbIndexViewModel.OgLocaleTagAllowOverwrite;
-            ogSettingsPart.OgSiteNameTagEnabled = _fbIndexViewModel.OgSiteNameTagEnabled;
-            ogSettingsPart.OgSiteNameTagRequired = _fbIndexViewModel.OgSiteNameTagRequired;
-            ogSettingsPart.OgSiteNameTagValue = _fbIndexViewModel.OgSiteNameTagValue;
-            ogSettingsPart.OgSiteNameTagAllowOverwrite = _fbIndexViewModel.OgSiteNameTagAllowOverwrite;
-            ogSettingsPart.FbAdminTagEnabled = _fbIndexViewModel.FbAdminTagEnabled;
-            ogSettingsPart.FbAdminTagRequired = _fbIndexViewModel.FbAdminTagRequired;
-            ogSettingsPart.FbAdminTagValue = _fbIndexViewModel.FbAdminTagValue;
-
+        private void SetOgSettingsPart(FacebookIndexViewModel fbIndexViewModel) {
+            var ogSettingsPart = _orchardServices.WorkContext.CurrentSite.As<OpenGraphMetaTagsSettingsPart>();
+            ogSettingsPart.OgTitleTagEnabled = fbIndexViewModel.OgTitleTagEnabled;
+            ogSettingsPart.OgTitleTagRequired = fbIndexViewModel.OgTitleTagRequired;
+            ogSettingsPart.OgTypeTagEnabled = fbIndexViewModel.OgTypeTagEnabled;
+            ogSettingsPart.OgTypeTagRequired = fbIndexViewModel.OgTypeTagRequired;
+            ogSettingsPart.OgImageTagEnabled = fbIndexViewModel.OgImageTagEnabled;
+            ogSettingsPart.OgImageTagRequired = fbIndexViewModel.OgImageTagRequired;
+            ogSettingsPart.OgUrlTagEnabled = fbIndexViewModel.OgUrlTagEnabled;
+            ogSettingsPart.OgUrlTagRequired = fbIndexViewModel.OgUrlTagRequired;
+            ogSettingsPart.OgDescriptionTagEnabled = fbIndexViewModel.OgDescriptionTagEnabled;
+            ogSettingsPart.OgDescriptionTagRequired = fbIndexViewModel.OgDescriptionTagRequired;
+            ogSettingsPart.OgLocaleTagEnabled = fbIndexViewModel.OgLocaleTagEnabled;
+            ogSettingsPart.OgLocaleTagRequired = fbIndexViewModel.OgLocaleTagRequired;
+            ogSettingsPart.OgLocaleTagValue = fbIndexViewModel.OgLocaleTagValue;
+            ogSettingsPart.OgLocaleTagAllowOverwrite = fbIndexViewModel.OgLocaleTagAllowOverwrite;
+            ogSettingsPart.OgSiteNameTagEnabled = fbIndexViewModel.OgSiteNameTagEnabled;
+            ogSettingsPart.OgSiteNameTagRequired = fbIndexViewModel.OgSiteNameTagRequired;
+            ogSettingsPart.OgSiteNameTagValue = fbIndexViewModel.OgSiteNameTagValue;
+            ogSettingsPart.OgSiteNameTagAllowOverwrite = fbIndexViewModel.OgSiteNameTagAllowOverwrite;
+            ogSettingsPart.FbAdminTagEnabled = fbIndexViewModel.FbAdminTagEnabled;
+            ogSettingsPart.FbAdminTagRequired = fbIndexViewModel.FbAdminTagRequired;
+            ogSettingsPart.FbAdminTagValue = fbIndexViewModel.FbAdminTagValue;
         }
-
-
-
-
+        #endregion
     }
 }

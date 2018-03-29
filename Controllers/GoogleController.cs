@@ -1,4 +1,4 @@
-﻿using System;
+﻿#region Using
 using System.Web.Mvc;
 using Om.Orchard.SocialMetaTags.Models;
 using Om.Orchard.SocialMetaTags.ViewModels;
@@ -9,75 +9,82 @@ using Orchard.Localization;
 using Orchard.Themes;
 using Orchard.UI.Admin;
 using Orchard.UI.Notify;
+#endregion
 
 namespace Om.Orchard.SocialMetaTags.Controllers {
     [OrchardFeature("Om.Orchard.SocialMetaTags")]
-    [Themed, Admin]
+    [Themed]
+    [Admin]
     public class GoogleController : Controller {
+        private readonly IOrchardServices _services;
 
-        public IOrchardServices Services { get; set; }
-        public Localizer T { get; set; }
-
-        public GoogleController(IOrchardServices _services) {
-            Services = _services;
+        public GoogleController(IOrchardServices services) {
+            _services = services;
             T = NullLocalizer.Instance;
         }
 
+        #region Properties
+        public Localizer T { get; set; }
+        #endregion
+
+        #region Methods
         public ActionResult Index() {
-            if (!Services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings")))
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
                 return new HttpUnauthorizedResult();
-
-            var googleTagsSettings = Services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
-
-            GoogleIndexViewModel model = new GoogleIndexViewModel();
-            model.AuthorRelTagEnabled = googleTagsSettings.AuthorRelTagEnabled;
-            model.AuthorRelTagRequired = googleTagsSettings.AuthorRelTagRequired;
-            model.PublisherRelTagEnabled = googleTagsSettings.PublisherRelTagEnabled;
-            model.PublisherRelTagRequired = googleTagsSettings.PublisherRelTagRequired;
-            model.PublisherRelTagAllowOverWrite = googleTagsSettings.PublisherRelTagAllowOverWrite;
-            model.PublisherRelTagPageUrl = googleTagsSettings.PublisherRelTagPageUrl;
-
+            }
+            var googleTagsSettings = _services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
+            var model = new GoogleIndexViewModel {
+                AuthorRelTagEnabled = googleTagsSettings.AuthorRelTagEnabled,
+                AuthorRelTagRequired = googleTagsSettings.AuthorRelTagRequired,
+                PublisherRelTagEnabled = googleTagsSettings.PublisherRelTagEnabled,
+                PublisherRelTagRequired = googleTagsSettings.PublisherRelTagRequired,
+                PublisherRelTagAllowOverWrite = googleTagsSettings.PublisherRelTagAllowOverWrite,
+                PublisherRelTagPageUrl = googleTagsSettings.PublisherRelTagPageUrl
+            };
             return View(model);
         }
 
-        [HttpPost, ActionName("Index")]
+        [HttpPost]
+        [ActionName("Index")]
         public ActionResult IndexPost(GoogleIndexViewModel model) {
-            if (!Services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings")))
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
                 return new HttpUnauthorizedResult();
-
-            if (model.PublisherRelTagRequired && String.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl)
-                        && !model.PublisherRelTagAllowOverWrite) {
-                ModelState.AddModelError("_FORM", T("Publisher Url is required as user can not overwrite.").Text);
             }
-
-            if (!String.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl)) {
-                if (!model.PublisherRelTagPageUrl.StartsWith("http"))
-                    ModelState.AddModelError("_FORM", T("Url must be in valid format").Text);
+            if (model.PublisherRelTagRequired &&
+                string.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl) &&
+                !model.PublisherRelTagAllowOverWrite) {
+                ModelState.AddModelError("_FORM",
+                    T("Publisher Url is required as user can not overwrite.")
+                        .Text);
             }
-
+            if (!string.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl)) {
+                if (!model.PublisherRelTagPageUrl.StartsWith("http")) {
+                    ModelState.AddModelError("_FORM",
+                        T("Url must be in valid format")
+                            .Text);
+                }
+            }
             if (ModelState.IsValid) {
                 if (TryUpdateModel(model)) {
-                    var googleTagsSettings = Services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
+                    var googleTagsSettings = _services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
                     googleTagsSettings.AuthorRelTagEnabled = model.AuthorRelTagEnabled;
                     googleTagsSettings.AuthorRelTagRequired = model.AuthorRelTagRequired;
                     googleTagsSettings.PublisherRelTagEnabled = model.PublisherRelTagEnabled;
                     googleTagsSettings.PublisherRelTagRequired = model.PublisherRelTagRequired;
                     googleTagsSettings.PublisherRelTagAllowOverWrite = model.PublisherRelTagAllowOverWrite;
                     googleTagsSettings.PublisherRelTagPageUrl = model.PublisherRelTagPageUrl;
-
-                    Services.Notifier.Information(T("Google Search Authorship Meta Tags settings saved successfully."));
+                    _services.Notifier.Information(T("Google Search Authorship Meta Tags settings saved successfully."));
                 }
                 else {
-                    Services.Notifier.Information(T("Could not save Google Search Authorship Meta Tags settings"));
+                    _services.Notifier.Information(T("Could not save Google Search Authorship Meta Tags settings"));
                 }
             }
             else {
-                Services.Notifier.Error(T("Validation Error."));
+                _services.Notifier.Error(T("Validation Error."));
                 return View(model);
             }
-
             return RedirectToAction("Index");
         }
-
+        #endregion
     }
 }
