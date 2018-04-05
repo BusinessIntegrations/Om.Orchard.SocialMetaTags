@@ -1,3 +1,9 @@
+The **BI/public** branch in this fork of this code is managed by [Business Integrations Ltd](https://github.com/BusinessIntegrations).
+
+A changelog is appended at the end of this file. Further information on our coding standards and approach are detailed [here](https://businessintegrations.github.io/).
+
+***
+
 Version/Branch Info
 =========
 Version 1.0 is available on Master Branch
@@ -105,8 +111,16 @@ Tags Documenation & Verification Links
  + Authorship Verification https://support.google.com/webmasters/answer/2539557?hl=en
 
 
-- Twiiter Summary Cards
+- Twitter Summary Cards
  - Card Tags https://dev.twitter.com/docs/cards/types/summary-card
  - Validator Tool https://dev.twitter.com/docs/cards/validation/validator
 
+***
 
+## Business Integrations Changelog
+
+1. Module rework 2018-04-04
+   * Fixed ‘artice’ typo, removed errant text in settings page.
+   * Moved admin menu into its own root instead of Settings.
+   * Code tidy
+   * Update readme.md
