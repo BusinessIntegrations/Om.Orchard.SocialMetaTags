@@ -14,19 +14,21 @@ namespace Om.Orchard.SocialMetaTags {
         #region INavigationProvider Members
         public void GetNavigation(NavigationBuilder builder) {
             builder.Add(T("Social Meta Tags"),
-                    "10",
-                    menu => menu.Action("Index",
-                            "Admin",
-                            new {
-                                area = "Om.Orchard.SocialMetaTags"
-                            })
-                        .Add(T("Settings Overview"), "1", item => Describe(item, "Index", "Admin", true))
-                        .Add(T("Google Authorship Meta Tags"), "2", item => Describe(item, "Index", "Google", true))
-                        .Add(T("Facebook Open Graph Meta Tags"), "3", item => Describe(item, "Index", "Facebook", true))
-                        .Add(T("Twitter Summary Cards Meta Tags"), "4", item => Describe(item, "Index", "Twitter", true)));
+                "2.0.1",
+                menu => menu.Permission(Permissions.ManageSocialMetaTagsSettings)
+                    .LinkToFirstChild(true)
+                    .Add(T("Settings Overview"), "1", item => Describe(item, Constants.IndexActionName, Constants.AdminControllerName))
+                    .Add(T("Google Authorship Meta Tags"), "2", item => Describe(item, Constants.IndexActionName, Constants.GoogleControllerName))
+                    .Add(T("Facebook Open Graph Meta Tags"),
+                        "3",
+                        item => Describe(item, Constants.IndexActionName, Constants.FacebookControllerName))
+                    .Add(T("Twitter Summary Cards Meta Tags"),
+                        "4",
+                        item => Describe(item, Constants.IndexActionName, Constants.TwitterControllerName)),
+                new[] {Constants.BiMenuSection});
         }
 
-        public string MenuName { get { return "admin"; } }
+        public string MenuName => "admin";
         #endregion
 
         #region Properties
@@ -34,14 +36,13 @@ namespace Om.Orchard.SocialMetaTags {
         #endregion
 
         #region Methods
-        internal static NavigationItemBuilder Describe(NavigationItemBuilder item, string actionName, string controllerName, bool localNav) {
-            item = item.Action(actionName,
-                    controllerName,
-                    new {
-                        area = "Om.Orchard.SocialMetaTags"
-                    })
+        internal static NavigationItemBuilder Describe(NavigationItemBuilder item, string actionName, string controllerName) {
+            var values = new {
+                area = Constants.AreaName
+            };
+            item = item.Action(actionName, controllerName, values)
                 .Permission(Permissions.ManageSocialMetaTagsSettings)
-                .LocalNav(localNav);            
+                .LocalNav();
             return item;
         }
         #endregion

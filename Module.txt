@@ -2,7 +2,7 @@
 AntiForgery: enabled
 Author: Bhavin Doshi
 Website: https://github.com/BusinessIntegrations/Om.Orchard.SocialMetaTags
-Version: 1.10.199
+Version: 2.0.252
 OrchardVersion: 1.10.2
 Description: Content part for Social Meta Tags (Open Graph Tags for Facebook/Google/Pinterest/Linkedin and Twitter Card Tags and Google Authorship). Modified by Business Integrations.
 Features:

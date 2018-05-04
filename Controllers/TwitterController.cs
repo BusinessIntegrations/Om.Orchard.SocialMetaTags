@@ -30,9 +30,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
         #region Methods
         // GET: /Twitter/
         public ActionResult Index() {
-            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tag Settings"))) {
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             var twitterIndexViewModel = GetViewModel(_services.WorkContext.CurrentSite.As<SummaryCardsMetaTagsSettingsPart>());
             return View(twitterIndexViewModel);
         }
@@ -40,9 +41,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
         [HttpPost]
         [ActionName("Index")]
         public ActionResult IndexPost(TwitterIndexViewModel model) {
-            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             if (model.CardSiteTagEnabled &&
                 model.CardSiteTagRequired &&
                 !model.CardSiteTagAllowOverwrite &&
@@ -51,6 +53,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                     T("Site Twitter Handle is required as per your selection.")
                         .Text);
             }
+
             if (ModelState.IsValid) {
                 if (TryUpdateModel(model)) {
                     SetTwitterCardSettings(model);
@@ -61,10 +64,11 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                 }
             }
             else {
-                _services.Notifier.Error(T("Validation error"));
+                _services.Notifier.Error(T(Constants.ValidationErrorText));
                 return View(model);
             }
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
         }
 
         private static TwitterIndexViewModel GetViewModel(SummaryCardsMetaTagsSettingsPart scSettingsPart) {

@@ -25,9 +25,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
 
         #region Methods
         public ActionResult Index() {
-            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
+            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             return View();
         }
         #endregion

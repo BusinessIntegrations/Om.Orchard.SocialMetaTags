@@ -28,6 +28,7 @@ namespace Om.Orchard.SocialMetaTags.Settings {
             if (definition.PartDefinition.Name != Constants.OpenGraphMetaTagsPartName) {
                 yield break;
             }
+
             var settings = definition.Settings.GetModel<OpenGraphMetaTagsPartSettings>();
             settings.OpenGraphTagsSettings = _workContextAccessor.GetContext()
                 .CurrentSite.As<OpenGraphMetaTagsSettingsPart>();
@@ -38,6 +39,7 @@ namespace Om.Orchard.SocialMetaTags.Settings {
             if (builder.Name != Constants.OpenGraphMetaTagsPartName) {
                 yield break;
             }
+
             var settings = new OpenGraphMetaTagsPartSettings {
                 OpenGraphTagsSettings = _workContextAccessor.GetContext()
                     .CurrentSite.As<OpenGraphMetaTagsSettingsPart>()
@@ -49,6 +51,7 @@ namespace Om.Orchard.SocialMetaTags.Settings {
                 builder.WithSetting(Constants.OpenGraphSettings.DefaultTypeName, settings.OgDefaultType);
                 builder.WithSetting(Constants.OpenGraphSettings.DefaultUrlName, settings.OgDefaultUrl);
             }
+
             yield return DefinitionTemplate(settings);
         }
         #endregion

@@ -6,7 +6,7 @@ using Orchard.ContentManagement.Handlers;
 namespace Om.Orchard.SocialMetaTags.Handlers {
     public class SummaryCardsMetaTagsSettingsPartHandler : ContentHandler {
         public SummaryCardsMetaTagsSettingsPartHandler() {
-            Filters.Add(new ActivatingFilter<SummaryCardsMetaTagsSettingsPart>("Site"));
+            Filters.Add(new ActivatingFilter<SummaryCardsMetaTagsSettingsPart>(Constants.SiteContentTypeName));
 
             // initializing selections
             OnInitializing<SummaryCardsMetaTagsSettingsPart>((context, part) => {

@@ -24,23 +24,25 @@ namespace Om.Orchard.SocialMetaTags.Drivers {
 
         #region Methods
         protected override DriverResult Display(AuthorshipMetaTagsPart part, string displayType, dynamic shapeHelper) {
-            if (displayType != "Detail") {
+            if (displayType != Constants.DetailDisplayType) {
                 return null;
             }
-            var resourceManager = _wca.GetContext()
-                .Resolve<IResourceManager>();
-            var googleTagsSettings = _wca.GetContext()
-                .CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
+
+            var workContext = _wca.GetContext();
+            var resourceManager = workContext.Resolve<IResourceManager>();
+            var googleTagsSettings = workContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
             if (googleTagsSettings.RenderOutput) {
                 if (googleTagsSettings.AuthorRelTagEnabled &&
                     !string.IsNullOrWhiteSpace(part.GpAuthorProfileUrl)) {
                     resourceManager.RegisterLink(SocialMetaTagsHelpers.BuildLinkEntry("author", part.GpAuthorProfileUrl));
                 }
+
                 if (googleTagsSettings.PublisherRelTagEnabled &&
                     !string.IsNullOrWhiteSpace(part.GpPublisherProfileUrl)) {
                     resourceManager.RegisterLink(SocialMetaTagsHelpers.BuildLinkEntry("publisher", part.GpPublisherProfileUrl));
                 }
             }
+
             return null;
         }
 
@@ -48,7 +50,8 @@ namespace Om.Orchard.SocialMetaTags.Drivers {
         protected override DriverResult Editor(AuthorshipMetaTagsPart part, dynamic shapeHelper) {
             part.GoogleTagsSettings = _wca.GetContext()
                 .CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
-            return ContentShape("Parts_AuthorshipMetaTags_Edit", () => shapeHelper.EditorTemplate(TemplateName: "Parts/AuthorshipMetaTags", Model: part, Prefix: Prefix));
+            return ContentShape("Parts_AuthorshipMetaTags_Edit",
+                () => shapeHelper.EditorTemplate(TemplateName: "Parts/AuthorshipMetaTags", Model: part, Prefix: Prefix));
         }
 
         //Post
@@ -61,12 +64,14 @@ namespace Om.Orchard.SocialMetaTags.Drivers {
                     string.IsNullOrWhiteSpace(part.GpAuthorProfileUrl)) {
                     updater.AddModelError("_FORM", T("Google+ Profile Url is required"));
                 }
+
                 if (part.GoogleTagsSettings.PublisherRelTagEnabled &&
                     part.GoogleTagsSettings.PublisherRelTagRequired &&
                     string.IsNullOrWhiteSpace(part.GpPublisherProfileUrl)) {
                     updater.AddModelError("_FORM", T("Google+ Business page Url is required"));
                 }
             }
+
             return Editor(part, shapeHelper);
         }
         #endregion

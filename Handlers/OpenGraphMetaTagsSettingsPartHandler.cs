@@ -6,7 +6,7 @@ using Orchard.ContentManagement.Handlers;
 namespace Om.Orchard.SocialMetaTags.Handlers {
     public class OpenGraphMetaTagsSettingsPartHandler : ContentHandler {
         public OpenGraphMetaTagsSettingsPartHandler() {
-            Filters.Add(new ActivatingFilter<OpenGraphMetaTagsSettingsPart>("Site"));
+            Filters.Add(new ActivatingFilter<OpenGraphMetaTagsSettingsPart>(Constants.SiteContentTypeName));
 
             // initializing default selections
             OnInitializing<OpenGraphMetaTagsSettingsPart>((context, part) => {

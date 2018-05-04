@@ -29,9 +29,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
 
         #region Methods
         public ActionResult Index() {
-            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             var googleTagsSettings = _services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
             var model = new GoogleIndexViewModel {
                 AuthorRelTagEnabled = googleTagsSettings.AuthorRelTagEnabled,
@@ -47,9 +48,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
         [HttpPost]
         [ActionName("Index")]
         public ActionResult IndexPost(GoogleIndexViewModel model) {
-            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
+            if (!_services.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             if (model.PublisherRelTagRequired &&
                 string.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl) &&
                 !model.PublisherRelTagAllowOverWrite) {
@@ -57,6 +59,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                     T("Publisher Url is required as user can not overwrite.")
                         .Text);
             }
+
             if (!string.IsNullOrWhiteSpace(model.PublisherRelTagPageUrl)) {
                 if (!model.PublisherRelTagPageUrl.StartsWith("http")) {
                     ModelState.AddModelError("_FORM",
@@ -64,6 +67,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                             .Text);
                 }
             }
+
             if (ModelState.IsValid) {
                 if (TryUpdateModel(model)) {
                     var googleTagsSettings = _services.WorkContext.CurrentSite.As<AuthorshipMetaTagsSettingsPart>();
@@ -80,10 +84,11 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                 }
             }
             else {
-                _services.Notifier.Error(T("Validation Error."));
+                _services.Notifier.Error(T(Constants.ValidationErrorText));
                 return View(model);
             }
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
         }
         #endregion
     }

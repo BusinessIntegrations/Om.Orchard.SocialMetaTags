@@ -30,9 +30,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
         #region Methods
         // GET: /Facebook/
         public ActionResult Index() {
-            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tag Settings"))) {
+            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             var fbIndexViewModel = GetViewModel(_orchardServices.WorkContext.CurrentSite.As<OpenGraphMetaTagsSettingsPart>());
             fbIndexViewModel.CurrentCulture = _orchardServices.WorkContext.CurrentSite.SiteCulture;
             fbIndexViewModel.CurrentSiteName = _orchardServices.WorkContext.CurrentSite.SiteName;
@@ -42,9 +43,10 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
         [HttpPost]
         [ActionName("Index")]
         public ActionResult IndexPost(FacebookIndexViewModel model) {
-            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T("Can't manage Social Media Tags Settings"))) {
+            if (!_orchardServices.Authorizer.Authorize(Permissions.ManageSocialMetaTagsSettings, T(Constants.CannotManageText))) {
                 return new HttpUnauthorizedResult();
             }
+
             if (model.OgLocaleTagEnabled &&
                 model.OgLocaleTagRequired &&
                 !model.OgLocaleTagAllowOverwrite &&
@@ -53,6 +55,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                     T("Locale value is required as per your selection.")
                         .Text);
             }
+
             if (model.OgSiteNameTagEnabled &&
                 model.OgSiteNameTagRequired &&
                 !model.OgSiteNameTagAllowOverwrite &&
@@ -61,6 +64,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                     T("Site Name value is required as per your selection.")
                         .Text);
             }
+
             if (model.FbAdminTagEnabled &&
                 model.FbAdminTagRequired &&
                 !model.FbAdminTagAllowOverwrite &&
@@ -69,6 +73,7 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                     T("fb admins value is required as per your selection.")
                         .Text);
             }
+
             if (ModelState.IsValid) {
                 if (TryUpdateModel(model)) {
                     SetOgSettingsPart(model);
@@ -79,10 +84,11 @@ namespace Om.Orchard.SocialMetaTags.Controllers {
                 }
             }
             else {
-                _orchardServices.Notifier.Error(T("Validation error"));
+                _orchardServices.Notifier.Error(T(Constants.ValidationErrorText));
                 return View(model);
             }
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
         }
 
         private static FacebookIndexViewModel GetViewModel(OpenGraphMetaTagsSettingsPart ogSettingsPart) {

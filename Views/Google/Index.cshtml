@@ -51,7 +51,7 @@
                         @Html.LabelFor(m => m.PublisherRelTagPageUrl, T("Url"))
                         @Html.TextBoxFor(m => m.PublisherRelTagPageUrl, new {
                             @class = "text large",
-                            placeholder = ""
+                            placeholder = string.Empty
                         })
                         <span class="hint">@T("Must be valid Url") https://plus.google.com/{+PageId} </span>
                     </fieldset>

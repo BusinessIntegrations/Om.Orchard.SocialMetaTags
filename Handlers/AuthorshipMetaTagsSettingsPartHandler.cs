@@ -6,7 +6,7 @@ using Orchard.ContentManagement.Handlers;
 namespace Om.Orchard.SocialMetaTags.Handlers {
     public class AuthorshipMetaTagsSettingsPartHandler : ContentHandler {
         public AuthorshipMetaTagsSettingsPartHandler() {
-            Filters.Add(new ActivatingFilter<AuthorshipMetaTagsSettingsPart>("Site"));
+            Filters.Add(new ActivatingFilter<AuthorshipMetaTagsSettingsPart>(Constants.SiteContentTypeName));
 
             // initializing default selections
             OnInitializing<AuthorshipMetaTagsSettingsPart>((context, part) => {
