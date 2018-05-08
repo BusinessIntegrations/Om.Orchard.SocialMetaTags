@@ -124,3 +124,5 @@ Tags Documenation & Verification Links
    * Moved admin menu into its own root instead of Settings.
    * Code tidy
    * Update readme.md
+2. Deal with hard-coded strings 2018-05-04
+   * Rationalised string constants, updated module version, updated placement info, general code tidy etc.
